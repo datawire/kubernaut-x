@@ -1,0 +1,5 @@
+# --- Project Specific ---
+bin
+
+# --- IntelliJ IDEA ---
+.idea
