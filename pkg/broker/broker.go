@@ -9,7 +9,8 @@ import (
 )
 
 type Broker struct {
-	router *chi.Mux
+	router      *chi.Mux
+	adminRouter *chi.Mux
 }
 
 func NewBroker() *Broker {
@@ -21,12 +22,12 @@ func NewBroker() *Broker {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	b := &Broker{router: r}
-	b.configureRouter()
+	b.configureRoutes()
 
 	return b
 }
 
-func (b *Broker) Run(port int) error {
+func (b *Broker) Run(port int, adminPort int) error {
 	fmt.Printf("Starting Broker... :%d\n", port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), b.router)
 }

@@ -16,3 +16,7 @@ func (b *Broker) healthz() http.HandlerFunc {
 		}
 	}
 }
+
+func (b *Broker) readyz() http.HandlerFunc {
+	return nil
+}

@@ -9,7 +9,7 @@ resource "aws_key_pair" "this" {
 }
 
 resource "aws_instance" "this" {
-  ami                         = "${var.image_id}"
+  ami                         = "${var.machine_image}"
   associate_public_ip_address = true
   iam_instance_profile        = "${aws_iam_instance_profile.this.name}"
   instance_type               = "${var.machine_type}"

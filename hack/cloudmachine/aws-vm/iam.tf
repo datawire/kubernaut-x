@@ -4,14 +4,14 @@ data "template_file" "this" {
 }
 
 resource "aws_iam_policy" "this" {
-  name_prefix = "dev-"
-  path        = "/dev/${var.cluster_name}/"
+  name_prefix = "policy-"
+  path        = "/dev/${random_pet.this.id}/"
   policy      = "${data.template_file.this.rendered}"
 }
 
 resource "aws_iam_role" "this" {
-  name_prefix = "dev-"
-  path        = "/dev/${var.cluster_name}/"
+  name_prefix = "role-"
+  path        = "/dev/${random_pet.this.id}/"
   assume_role_policy = "${var.iam_role}"
 
   lifecycle {
@@ -20,14 +20,14 @@ resource "aws_iam_role" "this" {
 }
 
 resource "aws_iam_policy_attachment" "kubernaut-attach" {
-  name       = "iam-attach-${var.cluster_name}"
+  name       = "iam-attach-${random_pet.this.id}"
   roles      = ["${aws_iam_role.this.name}"]
   policy_arn = "${aws_iam_policy.this.arn}"
 }
 
 resource "aws_iam_instance_profile" "this" {
-  name_prefix = "dev-"
-  path = "/dev/${var.cluster_name}/"
+  name_prefix = "profile-"
+  path = "/dev/${random_pet.this.id}/"
   role = "${aws_iam_role.this.name}"
 
   lifecycle {

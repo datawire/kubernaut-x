@@ -41,6 +41,11 @@ variable "iam_policy" {
 EOF
 }
 
+variable "machine_image" {
+  description = "The ID of the EC2 virtual machine image"
+  default     = ""
+}
+
 variable "machine_type" {
   description = "The size of the EC2 virtual machine"
   default     = "m3.medium"
