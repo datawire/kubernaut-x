@@ -2,6 +2,7 @@ package version
 
 import (
 	"encoding/json"
+	"fmt"
 	"runtime"
 	"time"
 )
@@ -30,6 +31,10 @@ func GetVersion() *Version {
 		GOOS:      runtime.GOOS,
 		GOArch:    runtime.GOARCH,
 	}
+}
+
+func GetVersionShort() string {
+	return fmt.Sprintf("kubernaut %s", GetVersion().Version)
 }
 
 func GetVersionJSON() string {

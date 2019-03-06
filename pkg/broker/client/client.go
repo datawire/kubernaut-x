@@ -1,12 +1,26 @@
-package brokerapi
+package client
 
 import (
 	"github.com/datawire/kubernaut/pkg/broker"
+	"github.com/datawire/kubernaut/pkg/util"
 	"net/http"
+	"net/url"
 )
 
 type Client struct {
+	baseURL    url.URL
+	token      string
 	httpClient *http.Client
+}
+
+func NewBrokerClient(baseURL url.URL, token string) *Client {
+	result := &Client{
+		baseURL:    baseURL,
+		token:      token,
+		httpClient: util.NewHTTPClient(0, false),
+	}
+
+	return result
 }
 
 type ListQuery struct{}
