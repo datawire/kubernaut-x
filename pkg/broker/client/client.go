@@ -29,12 +29,12 @@ func (c *Client) ListClaims(params ListQuery) broker.ClaimList {
 	return broker.ClaimList{}
 }
 
-func (c *Client) CreateClaim(name string) (broker.Claim, error) {
-	return broker.Claim{}, nil
+func (c *Client) CreateClaim(name string) (broker.ClaimJSON, error) {
+	return broker.ClaimJSON{}, nil
 }
 
-func (c *Client) GetClaim(name string) (broker.Claim, error) {
-	return broker.Claim{}, nil
+func (c *Client) GetClaim(name string) (broker.ClaimJSON, error) {
+	return broker.ClaimJSON{}, nil
 }
 
 func (c *Client) DeleteClaim(name string) bool {

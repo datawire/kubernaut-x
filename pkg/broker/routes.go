@@ -10,7 +10,7 @@ func (b *Broker) configureRoutes() {
 	b.router.Route("/claims", func(r chi.Router) {
 		r.Get("/", b.listClaims())
 		r.Route("/{name}", func(r chi.Router) {
-			r.Use(claimCtx)
+			r.Use(b.claimCtx)
 			r.Get("/", b.getClaim())
 			r.Post("/", b.createClaim())
 			r.Delete("/", b.deleteClaim())

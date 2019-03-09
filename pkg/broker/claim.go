@@ -22,20 +22,20 @@ func (b *Broker) listClaims() http.HandlerFunc {
 	return nil
 }
 
-func claimCtx(next http.Handler) http.Handler {
+func (b *Broker) claimCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var claim *Claim
+		var claim *ClaimJSON
 		var err error
 
 		if claimName := chi.URLParam(r, "name"); claimName != "" {
-			claim = &Claim{}
+			claim = &ClaimJSON{}
 		} else {
 
 		}
 
 		if err != nil {
 			if r.Method == "DELETE" {
-				// OK: delete is ide
+				// OK: delete is idempotent.
 			}
 		}
 

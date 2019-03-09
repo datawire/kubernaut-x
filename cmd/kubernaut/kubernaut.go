@@ -2,72 +2,66 @@ package kubernaut
 
 import (
 	"fmt"
-	"github.com/datawire/kubernaut/pkg/broker"
 	"github.com/datawire/kubernaut/pkg/log"
+	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
+	"path"
 )
 
+var logger = log.Logger
+
 var verbose bool
-var dataDirectory string
+var DataDirectory string
 
 var rootCmd = &cobra.Command{
 	Use:   "kubernaut",
 	Short: "Kubernaut",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if verbose {
-			log.Logger.SetLevel(logrus.DebugLevel)
+			logger.SetLevel(logrus.DebugLevel)
+			logger.Debugln("debug logging enabled")
+		}
+
+		if err := os.MkdirAll(DataDirectory, 0755); err != nil {
+			logger.Errorln(err)
 		}
 	},
 	Run: nil,
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "log more information (debug level)")
+	userHome, err := homedir.Dir()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-	versionCmd := VersionCmd()
-	versionCmd.Flags().BoolVarP(&UseShortFormat, "short", "", false, "format version in 'short format'")
+	// set the default data directory
+	DataDirectory = path.Join(userHome, ".kubernaut")
 
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.PersistentFlags().BoolVarP(&verbose,
+		"verbose", "v", false, "log more information (debug level)")
 
-	brokerCmd := BrokerCmd()
-	rootCmd.AddCommand(brokerCmd)
+	rootCmd.PersistentFlags().StringVar(&DataDirectory,
+		"data-dir", DataDirectory, "filesystem location where kubernaut stores data")
 
-	agentCmd := AgentCmd()
-	agentCmd.Flags().StringVarP(&Token, "broker-token", "", "", "broker authentication token")
-	_ = agentCmd.MarkFlagRequired("broker-token")
+	commands := []*cobra.Command{
+		createAgentCommand(rootCmd),
+		createBrokerCommand(rootCmd),
+		createToolboxCommand(rootCmd),
+		createVersionCommand(rootCmd),
+	}
 
-	agentCmd.Flags().StringVarP(&BrokerBaseURL, "broker", "", "", "address of the broker")
-	_ = agentCmd.MarkFlagRequired("broker")
-
-	rootCmd.AddCommand(agentCmd)
+	for _, cmd := range commands {
+		rootCmd.AddCommand(cmd)
+	}
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-}
-
-func AgentCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "agent",
-		Short: "Start a Kubernaut agent",
-		Run:   runAgent,
-	}
-}
-
-func BrokerCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "broker",
-		Short: "Start a Kubernaut broker",
-		Run: func(cmd *cobra.Command, args []string) {
-			b := broker.NewBroker()
-			if err := b.Run(7000, 7001); err != nil {
-				fmt.Println(err)
-			}
-		},
 	}
 }

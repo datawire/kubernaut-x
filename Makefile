@@ -21,4 +21,8 @@ build.image:
 	docker build \
 	-t datawireio/kubernaut \
 	-t datawireio/kubernaut:$(GIT_COMMIT) \
+	-f Dockerfile \
 	.
+
+test.fast:
+	go test -tags=fast -v ./...

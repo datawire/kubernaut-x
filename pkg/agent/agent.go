@@ -1,9 +1,13 @@
 package agent
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	brokerclient "github.com/datawire/kubernaut/pkg/broker/client"
 	"github.com/sirupsen/logrus"
 	"net/url"
+	"os/exec"
 	"time"
 )
 
@@ -21,35 +25,67 @@ func (c ClusterStatus) String() string {
 	return [...]string{"UNREGISTERED", "REGISTERED", "CLAIMED", "DISCARDED", "UNKNOWN"}[c]
 }
 
-// Agent periodically contacts the kubernaut broker to indicate the status of a Kubernaut cluster.
 type Agent struct {
-	// ID is a unique identifier for the agent.
-	ID string
-
-	// KubernetesCluster contains important information about the cluster that the agent is handling such as the
-	// cluster ID and kubeconfig.
-	Cluster KubernetesCluster
-
-	// The state of the cluster
-	ClusterStatus string
-
-	broker *brokerclient.Client
-	logger *logrus.Logger
+	ID            string        `json:",omitempty"`
+	Broker        *Broker       `json:",omitempty"`
+	Cluster       Cluster       `json:",omitempty"`
+	ClusterStatus ClusterStatus `json:",omitempty"`
+	logger        *logrus.Logger
 }
 
-func NewAgent(logger *logrus.Logger, brokerBaseURL url.URL, brokerToken string) *Agent {
-	brokerClient := brokerclient.NewBrokerClient(brokerBaseURL, brokerToken)
-	return &Agent{
-		broker: brokerClient,
-		logger: logger,
+type Broker struct {
+	Address url.URL `json:",omitempty"`
+	Token   string  `json:",omitempty"`
+	client  *brokerclient.Client
+}
+
+type Cluster struct {
+	ID      string `json:",omitempty"`
+	Config  string `json:",omitempty"`
+	Flavor  string `json:",omitempty"`
+	Version string `json:",omitempty"`
+}
+
+func NewAgent(logger *logrus.Logger) *Agent {
+	return &Agent{logger: logger}
+}
+
+func (a *Agent) ResolveClusterID(namespace string) error {
+	ns, err := kubectlGetNamespace(namespace)
+	if err != nil {
+		return err
 	}
+
+	if ns == "" {
+		return errors.New("namespace not found")
+	}
+
+	var raw map[string]interface{}
+	if err := json.Unmarshal([]byte(ns), raw); err != nil {
+		return err
+	}
+
+	metadata := raw["metadata"]
+	if metadata == nil {
+		return fmt.Errorf("namespace %q is missing metadata information", namespace)
+	}
+
+	metadata, ok := metadata.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("failed metadata type transformation")
+	}
+
+	return nil
 }
 
-type KubernetesCluster struct {
-	ID      string
-	Config  string
-	Flavor  string
-	Version string
+func (a *Agent) PerformPreflightChecks() error {
+	return nil
+}
+
+func (a *Agent) Initialize() {
+	if a.Broker.client == nil {
+		a.Broker.client = brokerclient.NewBrokerClient(a.Broker.Address, a.Broker.Token)
+	}
 }
 
 func (a *Agent) Run() {
@@ -58,11 +94,17 @@ func (a *Agent) Run() {
 	for {
 		a.logger.Infoln("Sending heartbeat to broker")
 
-		a.logger.WithField("frequency", heartbeatFrequency).Infoln("Waiting %s before next heartbeat")
+		a.logger.WithField("frequency", heartbeatFrequency).Infoln("Waiting before next heartbeat")
 		time.Sleep(heartbeatFrequency)
 	}
 }
 
 func (a *Agent) setup() {
 
+}
+
+func kubectlGetNamespace(name string) (string, error) {
+	cmd := exec.Command("kubectl", "get", "namespace", name, "--output=json", "--ignore-not-found")
+	out, err := cmd.Output()
+	return string(out), err
 }

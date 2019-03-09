@@ -6,21 +6,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var UseShortFormat bool
+var simpleFormat bool
 
-func VersionCmd() *cobra.Command {
-	return &cobra.Command{
+func createVersionCommand(root *cobra.Command) *cobra.Command {
+	cmd := &cobra.Command{
 		Use:   "version",
 		Short: "Verify Kubernaut version",
 		Long: `Use this command to check the version of Kubernaut.
 	
 	This command will return the version of the kubernaut binary.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if UseShortFormat {
+			if simpleFormat {
 				fmt.Printf("%s\n", version.GetVersionShort())
 			} else {
 				fmt.Printf("%s\n", version.GetVersionJSON())
 			}
 		},
 	}
+
+	cmd.Flags().BoolVarP(&simpleFormat, "simple", "s", false, "format version as just 'kubernaut <version>'")
+
+	return cmd
 }

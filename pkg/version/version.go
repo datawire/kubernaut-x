@@ -15,7 +15,7 @@ var (
 
 type Version struct {
 	Version   string
-	GitCommit string
+	Commit    string
 	BuildDate string
 	GoVersion string
 	GOOS      string
@@ -25,7 +25,7 @@ type Version struct {
 func GetVersion() *Version {
 	return &Version{
 		Version:   ReleaseVersion,
-		GitCommit: GitCommit,
+		Commit:    GitCommit,
 		BuildDate: time.Now().UTC().String(),
 		GoVersion: runtime.Version(),
 		GOOS:      runtime.GOOS,

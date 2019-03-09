@@ -2,6 +2,7 @@ package broker
 
 import (
 	"fmt"
+	"github.com/datawire/kubernaut/pkg/claimregistry"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"net/http"
@@ -11,9 +12,10 @@ import (
 type Broker struct {
 	router      *chi.Mux
 	adminRouter *chi.Mux
+	claims      *claimregistry.Registry
 }
 
-func NewBroker() *Broker {
+func NewBroker(claims claimregistry.Registry) *Broker {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -21,7 +23,11 @@ func NewBroker() *Broker {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	b := &Broker{router: r}
+	b := &Broker{
+		claims: &claims,
+		router: r,
+	}
+
 	b.configureRoutes()
 
 	return b
