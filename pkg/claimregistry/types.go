@@ -40,13 +40,24 @@ func NewClaimID(claimName string, holder ClaimHolder) (*ClaimID, error) {
 	return &ClaimID{name: canonicalName, holderID: canonicalHolder}, nil
 }
 
+// IsHolder returns true if the ID is associated to the passed in ClaimHolder and false otherwise.
 func (i *ClaimID) IsHolder(holder ClaimHolder) bool {
 	return i.holderID == holder.ID
 }
 
 type ClaimHolder struct {
-	ID   string
-	Name string
+	ID    string
+	Alias string
+}
+
+func (h *ClaimHolder) String() string {
+	res := strings.ToLower(h.ID)
+
+	if h.Alias != "" {
+		res += fmt.Sprintf("[%q]", h.Alias)
+	}
+
+	return res
 }
 
 type Claim struct {

@@ -8,7 +8,7 @@ GOBUILD = go build -o bin/$(BINARY_BASENAME)-$(GOOS)-$(GOARCH) -ldflags "-X gith
 
 BINARY_BASENAME=kubernaut
 
-all: clean build
+all: clean test.fast build
 
 clean:
 	rm -rf bin

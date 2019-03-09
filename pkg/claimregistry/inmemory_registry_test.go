@@ -14,7 +14,7 @@ func TestCreateClaim(t *testing.T) {
 	r := NewInMemoryClaimRegistry()
 	go r.Process(wg)
 
-	cHolder := ClaimHolder{Name: "philip", ID: "user001"}
+	cHolder := ClaimHolder{Alias: "philip", ID: "user001"}
 	cID, _ := NewClaimID("test", cHolder)
 	c := Claim{
 		ID: *cID,
