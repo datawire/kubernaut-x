@@ -50,6 +50,7 @@ func init() {
 	commands := []*cobra.Command{
 		createAgentCommand(rootCmd),
 		createBrokerCommand(rootCmd),
+		createClaimCommand(rootCmd),
 		createToolboxCommand(rootCmd),
 		createVersionCommand(rootCmd),
 	}

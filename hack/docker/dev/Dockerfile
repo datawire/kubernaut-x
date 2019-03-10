@@ -5,6 +5,7 @@ ARG TERRAFORM_VERSION="0.11.11"
 
 RUN apt-get update && apt-get -y install \
     ansible \
+    cloc \
     make \
     sudo \
     unzip \
