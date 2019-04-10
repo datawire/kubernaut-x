@@ -8,9 +8,11 @@ GOBUILD = go build -o bin/$(BINARY_BASENAME)-$(GOOS)-$(GOARCH) -ldflags "-X gith
 
 BINARY_BASENAME=kubernaut
 
-all: clean test.fast build
+.PHONY: all build build.image build.image.devtools clean cloc fmt generate test.fast
 
-build:
+all: clean fmt test.fast build
+
+build: generate
 	$(GOBUILD) main.go
 	ln -sf $(BINARY_BASENAME)-$(GOOS)-$(GOARCH) bin/$(BINARY_BASENAME)
 
@@ -38,6 +40,12 @@ cloc: build.image.devtools
 	--workdir /project \
 	knaut-dev \
 	/usr/bin/cloc .
+
+fmt:
+	go fmt ./...
+
+generate:
+	protoc --go_out=plugins=grpc:. proto/bap.proto
 
 test.fast:
 	go test -tags=fast -v ./...

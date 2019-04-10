@@ -13,6 +13,11 @@ type Client struct {
 	httpClient *http.Client
 }
 
+type CreateClaimParams struct {
+	Name  string
+	Class string
+}
+
 func NewBrokerClient(baseURL url.URL, token string) *Client {
 	result := &Client{
 		baseURL:    baseURL,

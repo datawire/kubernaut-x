@@ -30,6 +30,12 @@ func createClaimCommand(root *cobra.Command) *cobra.Command {
 		Run:   getClaim,
 	}
 
+	getCredentialsCmd := &cobra.Command{
+		Use:   "get-credentials",
+		Short: "Get the credentials (\"kubeconfig\") for a claimed cluster",
+		Run:   getCredentials,
+	}
+
 	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all your claims",
@@ -39,6 +45,7 @@ func createClaimCommand(root *cobra.Command) *cobra.Command {
 	cmd.AddCommand(createCmd)
 	cmd.AddCommand(deleteCmd)
 	cmd.AddCommand(getCmd)
+	cmd.AddCommand(getCredentialsCmd)
 	cmd.AddCommand(listCmd)
 
 	return cmd
@@ -53,6 +60,10 @@ func deleteClaim(cmd *cobra.Command, args []string) {
 }
 
 func getClaim(cmd *cobra.Command, args []string) {
+	fmt.Println("get claim")
+}
+
+func getCredentials(cmd *cobra.Command, args []string) {
 	fmt.Println("get claim")
 }
 

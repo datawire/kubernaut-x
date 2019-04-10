@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option go_package = "pkg/bap";
+
+service ClusterRegistry {
+    rpc Communicate(stream Cluster) returns (stream Notification);
+}
+
+enum ClusterStatus {
+    // cluster is in an unknown state
+    UNKNOWN   = 0;
+
+    // cluster is not claimed by any user
+    UNCLAIMED = 1;
+
+    // cluster is claimed by a user
+    CLAIMED   = 2;
+
+    // cluster is discarded either by explicit user action or an internal broker routine.
+    DISCARDED = 3;
+}
+
+message Cluster {
+    string id            = 1; // unique ID for the cluster
+    string config        = 2; // kubernetes configuration
+    ClusterStatus status = 3;
+}
+
+message ClusterStatusUpdate {
+    string          id       = 1;
+    ClusterStatus   previous = 2;
+    ClusterStatus   current  = 3;
+}
+
+message Notification {
+    ClusterStatusUpdate clusterStatusUpdate = 1;
+}
+
+message Heartbeat {
+    string  agentId = 1; // unique ID for the agent
+    Cluster cluster = 2; // cluster information.
+}
